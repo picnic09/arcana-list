@@ -31,52 +31,76 @@
     </form>
   </div>
 
-  <script>
-    const labels = [
-      "女教皇", "女帝", "皇帝", "法王", "恋愛", "戦車", "正義", "隠者", "運命", "剛毅",
-      "刑死者", "死神", "節制", "悪魔", "塔", "星", "月", "太陽", "信念", "顧問官"
-    ];
+<script>
+  const labels = [
+    "女教皇", "女帝", "皇帝", "法王", "恋愛", "戦車", "正義", "隠者", "運命", "剛毅",
+    "刑死者", "死神", "節制", "悪魔", "塔", "星", "月", "太陽", "信念", "顧問官"
+  ];
 
-    const tbody = document.querySelector("#todo-table tbody");
-    let idx = 0;
-    for (let r = 1; r <= 10; r++) {
-      const tr = document.createElement("tr");
-      for (let c = 1; c <= 2; c++) {
-        const td = document.createElement("td");
-        const id = `todo-${r}-${c}`;
-        const text = labels[idx] || "-";
-        idx++;
+  const tbody = document.querySelector("#todo-table tbody");
+  const savedStates = JSON.parse(localStorage.getItem("triStates") || "{}");
+  let idx = 0;
 
-        td.innerHTML = `
-          <div class="item">
-            <input type="checkbox" id="${id}">
-            <label for="${id}">${text}</label>
-          </div>`;
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    }
+  for (let r = 1; r <= 10; r++) {
+    const tr = document.createElement("tr");
+    for (let c = 1; c <= 2; c++) {
+      const td = document.createElement("td");
+      const id = `todo-${r}-${c}`;
+      const text = labels[idx] || "-";
+      idx++;
 
-    // --- チェック状態を保存・復元 ---
-    const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      td.innerHTML = `
+        <div class="item">
+          <input type="checkbox" id="${id}">
+          <label for="${id}">${text}</label>
+        </div>`;
+      tr.appendChild(td);
 
-    // 保存されていた状態を反映
-    checkboxes.forEach(cb => {
-      const saved = localStorage.getItem(cb.id);
-      if (saved === "true") cb.checked = true;
-    });
+      // --- 3択仕様の処理 ---
+      const checkbox = td.querySelector("input");
+      let state = savedStates[id] ?? 0; // 保存されていれば復元
 
-    // チェックが変わるたびに保存
-    checkboxes.forEach(cb => {
-      cb.addEventListener("change", () => {
-        localStorage.setItem(cb.id, cb.checked);
+      // 復元処理
+      applyState(checkbox, state);
+
+      checkbox.addEventListener("change", function(e) {
+        //e.preventDefault(); // デフォルト動作を止める
+        state = (state + 1) % 3;
+        applyState(this, state);
+
+        // 保存
+        savedStates[id] = state;
+        localStorage.setItem("triStates", JSON.stringify(savedStates));
       });
-    });
+    }
+    tbody.appendChild(tr);
+  }
+
+  // 状態をUIに反映する関数
+  function applyState(checkbox, state) {
+    if (state === 0) {
+      checkbox.checked = false;
+      checkbox.indeterminate = false;
+    } else if (state === 1) {
+      checkbox.checked = true;
+      checkbox.indeterminate = false;
+    } else if (state === 2) {
+      checkbox.checked = false;
+      checkbox.indeterminate = true;
+    }
+  }
 
     if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js")
-      .then(() => console.log("Service Worker registered"));
+  navigator.serviceWorker.register("./service-worker.js")
+    .then(() => console.log("Service Worker registered"));
   }
+  </script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("Service Worker registered"));
+    }
   </script>
 </body>
 </html>

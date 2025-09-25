@@ -1,4 +1,4 @@
-const CACHE_NAME = "arcana-cache-v1"; // ←バージョン番号を上げる
+const CACHE_NAME = "arcana-cache-v2"; // ←バージョン番号を上げる
 
 self.addEventListener("install", e => {
   e.waitUntil(
