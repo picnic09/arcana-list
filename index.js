@@ -22,8 +22,7 @@ class TriStateCheckbox {
     this.load();
     this.applyState();
 
-    this.checkbox.addEventListener("click", (e) => {
-      e.preventDefault();
+    this.checkbox.addEventListener("change", () => {
       this.nextState();
     });
   }
